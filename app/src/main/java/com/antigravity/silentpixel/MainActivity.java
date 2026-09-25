@@ -57,16 +57,11 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             }
         });
 
-        // Toggle handling on either card click or switch click
+        // ONLY cardMainSwitch handles the click to prevent double-firing events
         cardMainSwitch.setOnClickListener(v -> {
-            boolean newState = !switchMain.isChecked();
-            switchMain.setChecked(newState);
-            handleToggle(newState);
-        });
-
-        switchMain.setOnClickListener(v -> {
-            boolean newState = switchMain.isChecked();
-            handleToggle(newState);
+            boolean targetMuteState = !switchMain.isChecked();
+            switchMain.setChecked(targetMuteState);
+            handleToggle(targetMuteState);
         });
 
         rowBattery.setOnClickListener(v -> openBatterySettings());
@@ -139,9 +134,11 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     }
 
     private void handleToggle(boolean mute) {
+        cardMainSwitch.setEnabled(false);
         new Thread(() -> {
             boolean ok = MuteController.setMute(this, mute);
             runOnUiThread(() -> {
+                cardMainSwitch.setEnabled(true);
                 if (ok) {
                     switchMain.setChecked(mute);
                     Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
