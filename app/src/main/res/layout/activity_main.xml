@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="@color/bg_dark">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/accent_blue"
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/subtitle"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="36dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/card_bg"
+        android:padding="20dp"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/status_unknown"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_white" />
+
+        <TextView
+            android:id="@+id/tvEngineInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Проверка системы..."
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnMute"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/btn_mute"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/btn_green"
+        android:textColor="@color/text_white"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnUnmute"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/btn_unmute"
+        android:textSize="16sp"
+        android:backgroundTint="@color/card_bg"
+        android:textColor="@color/text_white"
+        android:layout_marginBottom="24dp" />
+
+    <Switch
+        android:id="@+id/switchBoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/switch_boot"
+        android:textColor="@color/text_white"
+        android:textSize="15sp"
+        android:padding="8dp"
+        android:checked="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tip: Вы можете добавить переключатель прямо в шторку быстрых настроек!"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+</LinearLayout>

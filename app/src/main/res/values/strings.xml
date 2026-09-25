@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">SilentPixel</string>
+    <string name="tile_name">Звук камеры</string>
+    <string name="title">Pixel Shutter Mute</string>
+    <string name="subtitle">Бесшумная камера для японских Pixel</string>
+    <string name="status_muted">🟢 Затвор ЗАГЛУШЕН (Тишина)</string>
+    <string name="status_unmuted">🔴 Затвор ВКЛЮЧЕН (Звук)</string>
+    <string name="status_unknown">⚪ Статус неизвестен</string>
+    <string name="btn_mute">🔇 Заглушить затвор</string>
+    <string name="btn_unmute">🔊 Вернуть звук</string>
+    <string name="switch_boot">Авто-заглушение при перезагрузке</string>
+    <string name="shizuku_not_ready">Shizuku не запущен. Запустите Shizuku через Беспроводную отладку.</string>
+</resources>

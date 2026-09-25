@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.SilentPixel" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+        <item name="android:textColorPrimary">@color/text_white</item>
+    </style>
+</resources>
