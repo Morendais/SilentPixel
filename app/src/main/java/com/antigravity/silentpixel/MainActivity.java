@@ -2,11 +2,13 @@ package com.antigravity.silentpixel;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -37,19 +39,32 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         tvEngineInfo = findViewById(R.id.tvEngineInfo);
 
         prefs = getSharedPreferences("silent_pixel_prefs", MODE_PRIVATE);
-        switchBoot.setChecked(prefs.getBoolean("auto_boot", true));
+        
+        // Default auto_boot is false as requested
+        boolean autoBootEnabled = prefs.getBoolean("auto_boot", false);
+        switchBoot.setChecked(autoBootEnabled);
 
-        switchBoot.setOnCheckedChangeListener((btn, isChecked) -> {
-            prefs.edit().putBoolean("auto_boot", isChecked).apply();
+        switchBoot.setOnClickListener(v -> {
+            boolean wantEnabled = switchBoot.isChecked();
+            if (wantEnabled) {
+                if (!isIgnoringBatteryOptimizations()) {
+                    switchBoot.setChecked(false);
+                    showBatteryOptimizationDialog();
+                } else {
+                    prefs.edit().putBoolean("auto_boot", true).apply();
+                }
+            } else {
+                prefs.edit().putBoolean("auto_boot", false).apply();
+            }
         });
 
         cardMainSwitch.setOnClickListener(v -> {
             switchMain.toggle();
+            handleToggle(switchMain.isChecked());
         });
 
-        switchMain.setOnCheckedChangeListener((btn, isChecked) -> {
-            if (!btn.isPressed() && !cardMainSwitch.isPressed()) return;
-            handleToggle(isChecked);
+        switchMain.setOnClickListener(v -> {
+            handleToggle(switchMain.isChecked());
         });
 
         rowBattery.setOnClickListener(v -> {
@@ -63,12 +78,44 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     protected void onResume() {
         super.onResume();
         updateUI();
+        
+        // If user just returned from battery settings and battery is now unrestricted:
+        if (prefs.getBoolean("pending_boot_enable", false)) {
+            if (isIgnoringBatteryOptimizations()) {
+                switchBoot.setChecked(true);
+                prefs.edit().putBoolean("auto_boot", true).putBoolean("pending_boot_enable", false).apply();
+                Toast.makeText(this, "Auto-silence on restart enabled", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Shizuku.removeRequestPermissionResultListener(this);
+    }
+
+    private boolean isIgnoringBatteryOptimizations() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (pm != null) {
+            return pm.isIgnoringBatteryOptimizations(getPackageName());
+        }
+        return false;
+    }
+
+    private void showBatteryOptimizationDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle("Unrestricted Battery Required")
+            .setMessage("To automatically silence the camera whenever your Pixel reboots, Android requires battery usage for this app to be set to 'Unrestricted'.")
+            .setPositiveButton("Settings", (dialog, which) -> {
+                prefs.edit().putBoolean("pending_boot_enable", true).apply();
+                openBatterySettings();
+            })
+            .setNegativeButton("Cancel", (dialog, which) -> {
+                switchBoot.setChecked(false);
+                prefs.edit().putBoolean("auto_boot", false).apply();
+            })
+            .show();
     }
 
     private void updateUI() {
@@ -79,13 +126,13 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             boolean localOk = MuteController.isLocalServerRunning();
             runOnUiThread(() -> {
                 if (localOk) {
-                    tvEngineInfo.setText("Engine: Standalone (Active) • SKU: Japan");
+                    tvEngineInfo.setText("Engine: Active • Hardware SKU: Japan");
                 } else if (MuteController.hasShizukuPermission()) {
-                    tvEngineInfo.setText("Engine: Shizuku (Active) • SKU: Japan");
+                    tvEngineInfo.setText("Engine: Shizuku • Hardware SKU: Japan");
                 } else if (MuteController.isRootAvailable()) {
-                    tvEngineInfo.setText("Engine: Root (Active) • SKU: Japan");
+                    tvEngineInfo.setText("Engine: Root • Hardware SKU: Japan");
                 } else {
-                    tvEngineInfo.setText("Engine: Standalone (Tap switch to activate)");
+                    tvEngineInfo.setText("Engine: Ready • Hardware SKU: Japan");
                 }
             });
         }).start();
@@ -93,41 +140,16 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
 
     private void handleToggle(boolean mute) {
         new Thread(() -> {
-            if (MuteController.isLocalServerRunning()) {
-                executeAction(mute);
-                return;
-            }
-
-            if (MuteController.isShizukuAvailable() && !MuteController.hasShizukuPermission()) {
-                runOnUiThread(() -> {
-                    Shizuku.requestPermission(SHIZUKU_CODE);
-                    switchMain.setChecked(!mute);
-                });
-                return;
-            }
-
-            if (!MuteController.hasShizukuPermission() && !MuteController.isRootAvailable()) {
-                runOnUiThread(() -> {
-                    showSetupDialog();
-                    switchMain.setChecked(!mute);
-                });
-                return;
-            }
-
-            executeAction(mute);
+            boolean ok = MuteController.setMute(mute);
+            runOnUiThread(() -> {
+                if (ok) {
+                    Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Could not adjust audio. Please ensure service is active.", Toast.LENGTH_SHORT).show();
+                }
+                updateUI();
+            });
         }).start();
-    }
-
-    private void executeAction(boolean mute) {
-        boolean ok = MuteController.setMute(mute);
-        runOnUiThread(() -> {
-            if (ok) {
-                Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Failed to apply audio setting", Toast.LENGTH_SHORT).show();
-            }
-            updateUI();
-        });
     }
 
     private void openBatterySettings() {
@@ -141,14 +163,6 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
                 startActivity(intent);
             } catch (Exception ignored) {}
         }
-    }
-
-    private void showSetupDialog() {
-        new AlertDialog.Builder(this)
-            .setTitle("Permission Required")
-            .setMessage("To control system audio groups without Root, please grant access via Shizuku (Wireless Debugging) or run the one-line command via PC once:\n\nadb shell \"cmd audio set-group-volume 7 0\"")
-            .setPositiveButton("OK", null)
-            .show();
     }
 
     @Override
