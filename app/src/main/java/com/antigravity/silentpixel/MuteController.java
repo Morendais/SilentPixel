@@ -103,17 +103,16 @@ public class MuteController {
         // 2. Try Shizuku if available
         if (!success && hasShizukuPermission()) {
             try {
-                String cmd1 = "cmd audio set-group-volume 7 0";
-                String cmd2 = "cmd audio adj-group-volume 7 MUTE";
-                String cmd3 = "cmd audio set-group-volume 2 0";
-                String cmd4 = "cmd audio adj-group-volume 2 MUTE";
-                java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
+                java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("requireService");
                 m.setAccessible(true);
-                ((Process) m.invoke(null, new Object[]{cmd1.split(" "), null, null})).waitFor();
-                ((Process) m.invoke(null, new Object[]{cmd2.split(" "), null, null})).waitFor();
-                ((Process) m.invoke(null, new Object[]{cmd3.split(" "), null, null})).waitFor();
-                ((Process) m.invoke(null, new Object[]{cmd4.split(" "), null, null})).waitFor();
-                success = true;
+                moe.shizuku.server.IShizukuService service = (moe.shizuku.server.IShizukuService) m.invoke(null);
+                if (service != null) {
+                    service.newProcess(new String[]{"cmd", "audio", "set-group-volume", "7", "0"}, null, null).waitFor();
+                    service.newProcess(new String[]{"cmd", "audio", "adj-group-volume", "7", "MUTE"}, null, null).waitFor();
+                    service.newProcess(new String[]{"cmd", "audio", "set-group-volume", "2", "0"}, null, null).waitFor();
+                    service.newProcess(new String[]{"cmd", "audio", "adj-group-volume", "2", "MUTE"}, null, null).waitFor();
+                    success = true;
+                }
             } catch (Throwable t) {
                 t.printStackTrace();
             }
