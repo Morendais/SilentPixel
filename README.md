@@ -27,7 +27,26 @@ Modern Android (Android 11 through Android 16) manages audio streams using **Aud
 
 ---
 
-## 🚀 Quick Start (via PC / Mac)
+## 📱 SilentPixel App (The Easiest Way)
+
+We built an open-source Android app: **SilentPixel** (`SilentPixel.apk`, ~37 KB).
+
+### Features:
+* 🟢 **One-Click Mute / Unmute**: Clean Material 3 UI with instant state indicator.
+* 📲 **Quick Settings Tile**: Add a toggle button directly to your Android notification shade (next to Wi-Fi / Bluetooth).
+* 🔄 **Auto-Mute on Reboot**: Listens to `BOOT_COMPLETED` so your camera stays silent even after restarting the phone.
+* ⚡ **Zero Background Battery Drain**: Runs only when toggled or on reboot.
+* 🛡️ **Powered by Shizuku / Root**: Works seamlessly without needing PC cables once configured.
+
+### How to use:
+1. Download and install **`SilentPixel.apk`** from [Releases](https://github.com).
+2. Install and activate **[Shizuku](https://shizuku.rikka.app/)** (free on Google Play, activates in 10s via Wireless Debugging).
+3. Open **SilentPixel**, allow Shizuku access, and tap **"Заглушить затвор"**!
+4. *(Optional)* Pull down your notification shade, tap the edit (pencil) icon, and drag the **"Звук камеры"** tile into your active quick settings.
+
+---
+
+## 💻 Quick Start via PC (No App / Script Only)
 
 ### 1. Prerequisites
 1. Enable **Developer Options** on your Pixel:
