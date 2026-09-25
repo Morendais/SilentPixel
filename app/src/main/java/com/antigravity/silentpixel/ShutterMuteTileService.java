@@ -2,6 +2,7 @@ package com.antigravity.silentpixel;
 
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.widget.Toast;
 
 public class ShutterMuteTileService extends TileService {
 
@@ -18,10 +19,12 @@ public class ShutterMuteTileService extends TileService {
         boolean isMuted = MuteController.isCameraMuted(this);
         if (isMuted) {
             tile.setState(Tile.STATE_ACTIVE);
-            tile.setLabel("Shutter: Muted");
+            tile.setLabel("Shutter: Silent");
+            tile.setSubtitle("Active");
         } else {
             tile.setState(Tile.STATE_INACTIVE);
-            tile.setLabel("Shutter: Loud");
+            tile.setLabel("Silence Shutter");
+            tile.setSubtitle("Tap to mute");
         }
         tile.updateTile();
     }
@@ -32,8 +35,11 @@ public class ShutterMuteTileService extends TileService {
         Tile tile = getQsTile();
         if (tile == null) return;
 
-        boolean currentlyMuted = (tile.getState() == Tile.STATE_ACTIVE);
-        MuteController.setMute(this, !currentlyMuted);
-        updateTile();
+        MuteController.setMute(this, true);
+        tile.setState(Tile.STATE_ACTIVE);
+        tile.setLabel("Shutter: Silent");
+        tile.setSubtitle("Active");
+        tile.updateTile();
+        Toast.makeText(this, "Camera shutter silenced", Toast.LENGTH_SHORT).show();
     }
 }

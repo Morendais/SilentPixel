@@ -34,7 +34,7 @@ public class MuteController {
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             out.println(cmd);
             String resp = in.readLine();
-            return "OK".equals(resp) || "MUTED".equals(resp) || "UNMUTED".equals(resp);
+            return "OK".equals(resp) || "MUTED".equals(resp);
         } catch (Throwable t) {
             return false;
         }
@@ -97,16 +97,16 @@ public class MuteController {
 
         // 1. Try embedded LocalServer first
         if (isLocalServerRunning()) {
-            success = sendLocalServerCommand(mute ? "MUTE" : "UNMUTE");
+            success = sendLocalServerCommand("MUTE");
         }
 
         // 2. Try Shizuku if available
         if (!success && hasShizukuPermission()) {
             try {
-                String cmd1 = mute ? "cmd audio set-group-volume 7 0" : "cmd audio set-group-volume 7 7";
-                String cmd2 = mute ? "cmd audio adj-group-volume 7 MUTE" : "cmd audio adj-group-volume 7 UNMUTE";
-                String cmd3 = mute ? "cmd audio set-group-volume 2 0" : "cmd audio set-group-volume 2 7";
-                String cmd4 = mute ? "cmd audio adj-group-volume 2 MUTE" : "cmd audio adj-group-volume 2 UNMUTE";
+                String cmd1 = "cmd audio set-group-volume 7 0";
+                String cmd2 = "cmd audio adj-group-volume 7 MUTE";
+                String cmd3 = "cmd audio set-group-volume 2 0";
+                String cmd4 = "cmd audio adj-group-volume 2 MUTE";
                 java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
                 m.setAccessible(true);
                 ((Process) m.invoke(null, new Object[]{cmd1.split(" "), null, null})).waitFor();
@@ -122,8 +122,7 @@ public class MuteController {
         // 3. Try Root
         if (!success && isRootAvailable()) {
             try {
-                String cmd = mute ? "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE && cmd audio set-group-volume 2 0 && cmd audio adj-group-volume 2 MUTE"
-                                  : "cmd audio set-group-volume 7 7 && cmd audio adj-group-volume 7 UNMUTE && cmd audio set-group-volume 2 7 && cmd audio adj-group-volume 2 UNMUTE";
+                String cmd = "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE && cmd audio set-group-volume 2 0 && cmd audio adj-group-volume 2 MUTE";
                 Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
                 success = (p.waitFor() == 0);
             } catch (Throwable t) {
@@ -133,7 +132,7 @@ public class MuteController {
 
         if (success) {
             context.getSharedPreferences("silent_pixel_prefs", Context.MODE_PRIVATE)
-                    .edit().putBoolean("is_muted", mute).apply();
+                    .edit().putBoolean("is_muted", true).apply();
         }
 
         return success;

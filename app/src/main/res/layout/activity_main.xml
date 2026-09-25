@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="72dp"
+        android:paddingTop="88dp"
         android:paddingBottom="24dp">
 
         <!-- Pixel Header -->
@@ -34,50 +34,71 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="28dp" />
 
-        <!-- Main Switch Card (Pixel Hero Style) -->
+        <!-- Hero Action Card (Google Pixel Style) -->
         <LinearLayout
-            android:id="@+id/cardMainSwitch"
+            android:id="@+id/cardMainAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:background="@drawable/bg_card_single"
-            android:padding="20dp"
-            android:gravity="center_vertical"
+            android:padding="22dp"
             android:layout_marginBottom="28dp">
 
+            <!-- Top Row: Title + Status Chip -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingEnd="16dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/tvSwitchTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/switch_mute_title"
-                    android:textSize="18sp"
+                    android:layout_weight="1"
+                    android:text="@string/card_mute_title"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/md3_text_title" />
 
                 <TextView
+                    android:id="@+id/tvStatusBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/switch_mute_desc"
-                    android:textSize="13sp"
-                    android:textColor="@color/md3_text_body"
-                    android:lineSpacingExtra="2dp"
-                    android:layout_marginTop="4dp" />
+                    android:background="@drawable/bg_badge_active"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/status_silenced"
+                    android:textColor="@color/md3_status_active_text"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
-            <Switch
-                android:id="@+id/switchMain"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:thumbTint="@color/md3_switch_thumb_checked"
-                android:trackTint="@color/md3_switch_track_checked" />
+                android:text="@string/card_mute_desc"
+                android:textSize="13sp"
+                android:textColor="@color/md3_text_body"
+                android:lineSpacingExtra="3dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- One-tap Action Button -->
+            <Button
+                android:id="@+id/btnSilence"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_btn_pill"
+                android:text="@string/btn_silence_shutter"
+                android:textColor="@color/md3_on_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
 
         </LinearLayout>
 

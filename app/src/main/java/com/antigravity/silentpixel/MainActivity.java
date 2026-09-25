@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -19,14 +20,14 @@ import rikka.shizuku.Shizuku;
 public class MainActivity extends Activity implements Shizuku.OnRequestPermissionResultListener {
 
     private static final int SHIZUKU_CODE = 101;
-    private Switch switchMain;
+    private Button btnSilence;
+    private TextView tvStatusBadge;
+    private LinearLayout cardMainAction;
     private Switch switchBoot;
-    private LinearLayout cardMainSwitch;
     private LinearLayout rowBoot;
     private LinearLayout rowBattery;
     private TextView tvEngineInfo;
     private SharedPreferences prefs;
-    private volatile boolean isUpdatingUi = false;
     private volatile boolean isUpdatingBootUi = false;
 
     @Override
@@ -34,9 +35,10 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        switchMain = findViewById(R.id.switchMain);
+        btnSilence = findViewById(R.id.btnSilence);
+        tvStatusBadge = findViewById(R.id.tvStatusBadge);
+        cardMainAction = findViewById(R.id.cardMainAction);
         switchBoot = findViewById(R.id.switchBoot);
-        cardMainSwitch = findViewById(R.id.cardMainSwitch);
         rowBoot = findViewById(R.id.rowBoot);
         rowBattery = findViewById(R.id.rowBattery);
         tvEngineInfo = findViewById(R.id.tvEngineInfo);
@@ -69,16 +71,9 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             rowBoot.setOnClickListener(v -> switchBoot.toggle());
         }
 
-        // Main Switch handling: clicking card or switch cleanly toggles without race condition
-        switchMain.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isUpdatingUi) return;
-            handleToggle(isChecked);
-        });
-
-        cardMainSwitch.setOnClickListener(v -> {
-            if (isUpdatingUi) return;
-            switchMain.toggle();
-        });
+        // Hero card & button click: trigger silence action
+        btnSilence.setOnClickListener(v -> handleSilenceAction());
+        cardMainAction.setOnClickListener(v -> handleSilenceAction());
 
         rowBattery.setOnClickListener(v -> openBatterySettings());
 
@@ -134,9 +129,17 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             boolean localOk = MuteController.isLocalServerRunning();
 
             runOnUiThread(() -> {
-                isUpdatingUi = true;
-                switchMain.setChecked(isMuted);
-                isUpdatingUi = false;
+                if (isMuted) {
+                    tvStatusBadge.setText(R.string.status_silenced);
+                    tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_active));
+                    tvStatusBadge.setTextColor(getColor(R.color.md3_status_active_text));
+                    btnSilence.setText(R.string.btn_silence_reapply);
+                } else {
+                    tvStatusBadge.setText(R.string.status_not_silenced);
+                    tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_inactive));
+                    tvStatusBadge.setTextColor(getColor(R.color.md3_status_inactive_text));
+                    btnSilence.setText(R.string.btn_silence_shutter);
+                }
 
                 if (localOk) {
                     tvEngineInfo.setText("Engine: Active • Hardware SKU: Japan");
@@ -151,24 +154,25 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         }).start();
     }
 
-    private void handleToggle(boolean mute) {
-        cardMainSwitch.setEnabled(false);
-        switchMain.setEnabled(false);
+    private void handleSilenceAction() {
+        btnSilence.setEnabled(false);
+        cardMainAction.setEnabled(false);
+        btnSilence.setText("Silencing...");
+
         new Thread(() -> {
-            boolean ok = MuteController.setMute(this, mute);
+            boolean ok = MuteController.setMute(this, true);
             runOnUiThread(() -> {
-                cardMainSwitch.setEnabled(true);
-                switchMain.setEnabled(true);
+                btnSilence.setEnabled(true);
+                cardMainAction.setEnabled(true);
                 if (ok) {
-                    isUpdatingUi = true;
-                    switchMain.setChecked(mute);
-                    isUpdatingUi = false;
-                    Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
+                    tvStatusBadge.setText(R.string.status_silenced);
+                    tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_active));
+                    tvStatusBadge.setTextColor(getColor(R.color.md3_status_active_text));
+                    btnSilence.setText(R.string.btn_silence_reapply);
+                    Toast.makeText(this, "Camera shutter silenced ✓", Toast.LENGTH_SHORT).show();
                 } else {
-                    isUpdatingUi = true;
-                    switchMain.setChecked(!mute);
-                    isUpdatingUi = false;
-                    Toast.makeText(this, "Failed to toggle sound", Toast.LENGTH_SHORT).show();
+                    btnSilence.setText(R.string.btn_silence_shutter);
+                    Toast.makeText(this, "Could not silence shutter", Toast.LENGTH_SHORT).show();
                 }
             });
         }).start();

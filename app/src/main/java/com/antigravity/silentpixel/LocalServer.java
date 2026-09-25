@@ -32,11 +32,7 @@ public class LocalServer {
                         isMuted = true;
                         out.println("OK");
                     } else if ("UNMUTE".equals(cmd)) {
-                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "7"}).waitFor();
-                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "UNMUTE"}).waitFor();
-                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "2", "7"}).waitFor();
-                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "2", "UNMUTE"}).waitFor();
-                        isMuted = false;
+                        // Deprecated to avoid triggering AOSP cameraSoundForced lock
                         out.println("OK");
                     } else if ("STATUS".equals(cmd)) {
                         boolean muted = checkAudioGroupMuted();

@@ -6,10 +6,15 @@
     <color name="md3_primary">#A8C7FA</color>
     <color name="md3_primary_container">#004A77</color>
     <color name="md3_on_primary_container">#C2E7FF</color>
+    <color name="md3_on_primary">#043353</color>
     <color name="md3_text_title">#E2E2E9</color>
     <color name="md3_text_body">#C4C6D0</color>
     <color name="md3_text_muted">#8E919A</color>
     <color name="md3_divider">#2E3036</color>
     <color name="md3_switch_thumb_checked">#043353</color>
     <color name="md3_switch_track_checked">#A8C7FA</color>
+    <color name="md3_status_active_bg">#183827</color>
+    <color name="md3_status_active_text">#7BD592</color>
+    <color name="md3_status_inactive_bg">#2C2D35</color>
+    <color name="md3_status_inactive_text">#A8AAB4</color>
 </resources>

@@ -1,22 +1,26 @@
 <resources>
     <string name="app_name">Pixel Shutter</string>
-    <string name="tile_name">Shutter Sound</string>
+    <string name="tile_name">Silence Shutter</string>
     <string name="main_title">Camera Shutter</string>
     <string name="main_subtitle">Mute the mandatory camera shutter sound on Japanese Google Pixel models.</string>
     
-    <string name="switch_mute_title">Silent Shutter</string>
-    <string name="switch_mute_desc">Silences the camera click without pausing background music, videos, or calls.</string>
+    <string name="card_mute_title">Silent Shutter</string>
+    <string name="card_mute_desc">Permanently silences the Japanese camera click without root. Background music, videos, and calls will play uninterrupted.</string>
+    <string name="btn_silence_shutter">Silence Shutter</string>
+    <string name="btn_silence_reapply">Re-apply Silence</string>
+    <string name="status_silenced">● Silenced</string>
+    <string name="status_not_silenced">● Shutter Loud</string>
     
     <string name="section_preferences">SETTINGS</string>
     
     <string name="pref_boot_title">Auto-silence on restart</string>
-    <string name="pref_boot_desc">Automatically silences the shutter after the phone reboots.</string>
+    <string name="pref_boot_desc">Automatically re-applies silence after phone restarts.</string>
     
     <string name="pref_battery_title">Unrestricted background</string>
-    <string name="pref_battery_desc">Prevents Android from putting the auto-silence service to sleep.</string>
+    <string name="pref_battery_desc">Prevents Android from putting the silence service to sleep.</string>
     
     <string name="pref_tile_title">Quick Settings Tile</string>
-    <string name="pref_tile_desc">Add a toggle tile to your notification panel.</string>
+    <string name="pref_tile_desc">Add a one-tap silence tile to your quick settings panel.</string>
 
     <string name="status_sku">Region: Japan (GYPW4) • Audio Group 7</string>
 </resources>
