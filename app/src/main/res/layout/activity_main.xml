@@ -230,22 +230,6 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <!-- Footer / Status Info -->
-        <TextView
-            android:id="@+id/tvEngineInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/status_sku"
-            android:textSize="12sp"
-            android:textColor="@color/md3_text_muted"
-            android:layout_marginTop="16dp" />
-
     </LinearLayout>
 
 </ScrollView>

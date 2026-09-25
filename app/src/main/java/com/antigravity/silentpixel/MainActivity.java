@@ -26,7 +26,6 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     private Switch switchBoot;
     private LinearLayout rowBoot;
     private LinearLayout rowBattery;
-    private TextView tvEngineInfo;
     private SharedPreferences prefs;
     private volatile boolean isUpdatingBootUi = false;
 
@@ -41,7 +40,6 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         switchBoot = findViewById(R.id.switchBoot);
         rowBoot = findViewById(R.id.rowBoot);
         rowBattery = findViewById(R.id.rowBattery);
-        tvEngineInfo = findViewById(R.id.tvEngineInfo);
 
         prefs = getSharedPreferences("silent_pixel_prefs", MODE_PRIVATE);
 
@@ -126,7 +124,7 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     private void updateUI() {
         new Thread(() -> {
             boolean isMuted = MuteController.isCameraMuted(this);
-            boolean localOk = MuteController.isLocalServerRunning();
+            boolean canMute = MuteController.isLocalServerRunning() || MuteController.hasShizukuPermission() || MuteController.isRootAvailable();
 
             runOnUiThread(() -> {
                 if (isMuted) {
@@ -134,21 +132,16 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
                     tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_active));
                     tvStatusBadge.setTextColor(getColor(R.color.md3_status_active_text));
                     btnSilence.setText(R.string.btn_silence_reapply);
-                } else {
+                } else if (canMute) {
                     tvStatusBadge.setText(R.string.status_not_silenced);
                     tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_inactive));
                     tvStatusBadge.setTextColor(getColor(R.color.md3_status_inactive_text));
                     btnSilence.setText(R.string.btn_silence_shutter);
-                }
-
-                if (localOk) {
-                    tvEngineInfo.setText("Engine: Active • Hardware SKU: Japan");
-                } else if (MuteController.hasShizukuPermission()) {
-                    tvEngineInfo.setText("Engine: Shizuku • Hardware SKU: Japan");
-                } else if (MuteController.isRootAvailable()) {
-                    tvEngineInfo.setText("Engine: Root • Hardware SKU: Japan");
                 } else {
-                    tvEngineInfo.setText("Engine: Standalone • Hardware SKU: Japan");
+                    tvStatusBadge.setText(R.string.status_needs_activation);
+                    tvStatusBadge.setBackground(getDrawable(R.drawable.bg_badge_inactive));
+                    tvStatusBadge.setTextColor(getColor(R.color.md3_status_inactive_text));
+                    btnSilence.setText(R.string.btn_silence_shutter);
                 }
             });
         }).start();
@@ -157,10 +150,25 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     private void handleSilenceAction() {
         btnSilence.setEnabled(false);
         cardMainAction.setEnabled(false);
-        btnSilence.setText("Silencing...");
 
         new Thread(() -> {
+            boolean canMute = MuteController.isLocalServerRunning() || MuteController.hasShizukuPermission() || MuteController.isRootAvailable();
+            if (!canMute) {
+                runOnUiThread(() -> {
+                    btnSilence.setEnabled(true);
+                    cardMainAction.setEnabled(true);
+                    if (MuteController.isShizukuAvailable() && !MuteController.hasShizukuPermission()) {
+                        Shizuku.requestPermission(SHIZUKU_CODE);
+                    } else {
+                        showActivationDialog();
+                    }
+                });
+                return;
+            }
+
+            runOnUiThread(() -> btnSilence.setText("Silencing..."));
             boolean ok = MuteController.setMute(this, true);
+
             runOnUiThread(() -> {
                 btnSilence.setEnabled(true);
                 cardMainAction.setEnabled(true);
@@ -172,10 +180,18 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
                     Toast.makeText(this, "Camera shutter silenced ✓", Toast.LENGTH_SHORT).show();
                 } else {
                     btnSilence.setText(R.string.btn_silence_shutter);
-                    Toast.makeText(this, "Could not silence shutter", Toast.LENGTH_SHORT).show();
+                    showActivationDialog();
                 }
             });
         }).start();
+    }
+
+    private void showActivationDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle("Activation Required")
+            .setMessage("Android resets camera sound on every reboot.\n\nTo re-activate the silent shutter:\n• Connect phone to PC and run mute.bat (1 click), or\n• Install Shizuku for automated on-device activation on boot.")
+            .setPositiveButton("OK", null)
+            .show();
     }
 
     private void openBatterySettings() {
@@ -196,7 +212,7 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         if (requestCode == SHIZUKU_CODE) {
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
-                updateUI();
+                handleSilenceAction();
             }
         }
     }
