@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Japanese Camera Mute</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --success: #22c55e;
+            --code-bg: #090d16;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 680px;
+            width: 100%;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        h1 {
+            font-size: 26px;
+            margin-top: 0;
+            color: var(--accent);
+        }
+        p {
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 10px;
+            overflow-x: auto;
+            color: #e2e8f0;
+            font-family: "JetBrains Mono", Consolas, monospace;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #334155;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-btn:hover {
+            background: #475569;
+        }
+        ol {
+            padding-left: 20px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        li strong {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <span class="badge">No Root • No Cellular Towers • Zero Audio Ducking</span>
+            <h1>Google Pixel Japanese Camera Mute</h1>
+            <p>Mute the enforced shutter sound on Japanese Pixel phones (Pixel 6/7/8/9/10 series) using the Android Audio Volume Groups API.</p>
+            
+            <h3>Two-line ADB Command:</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode()">Copy</button>
+                <pre id="cmd-box">adb shell "cmd audio set-group-volume 7 0"
+adb shell "cmd audio adj-group-volume 7 MUTE"</pre>
+            </div>
+
+            <h3>Quick Instructions:</h3>
+            <ol>
+                <li>Enable <strong>USB Debugging</strong> in <em>Settings &gt; System &gt; Developer Options</em>.</li>
+                <li>Connect your Pixel to PC/Mac via USB.</li>
+                <li>Run the commands above (or download <code>mute.bat</code> / <code>mute.sh</code>).</li>
+                <li><strong>Done!</strong> The camera is completely silent, and background music/calls remain completely unaffected.</li>
+            </ol>
+
+            <p style="font-size: 13px; margin-top: 24px;">Note: Android resets audio group volumes upon reboot. Automate on-device using <strong>Shizuku + Tasker/MacroDroid</strong> to keep it persistent across restarts.</p>
+        </div>
+    </div>
+
+    <script>
+        function copyCode() {
+            const text = document.getElementById('cmd-box').innerText;
+            navigator.clipboard.writeText(text);
+            const btn = document.querySelector('.copy-btn');
+            btn.innerText = 'Copied!';
+            setTimeout(() => btn.innerText = 'Copy', 2000);
+        }
+    </script>
+</body>
+</html>
