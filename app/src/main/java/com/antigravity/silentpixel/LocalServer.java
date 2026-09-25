@@ -9,9 +9,11 @@ import java.net.Socket;
 
 public class LocalServer {
     public static final int PORT = 45678;
+    private static volatile boolean isMuted = true;
 
     public static void main(String[] args) {
         System.out.println("SilentPixel LocalServer started on port " + PORT + ", UID=" + android.os.Process.myUid());
+        isMuted = checkAudioGroupMuted();
         try (ServerSocket serverSocket = new ServerSocket()) {
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress("127.0.0.1", PORT));
@@ -25,10 +27,12 @@ public class LocalServer {
                     if ("MUTE".equals(cmd)) {
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "0"}).waitFor();
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "MUTE"}).waitFor();
+                        isMuted = true;
                         out.println("OK");
                     } else if ("UNMUTE".equals(cmd)) {
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "7"}).waitFor();
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "UNMUTE"}).waitFor();
+                        isMuted = false;
                         out.println("OK");
                     } else if ("STATUS".equals(cmd)) {
                         boolean muted = checkAudioGroupMuted();
@@ -49,17 +53,23 @@ public class LocalServer {
 
     private static boolean checkAudioGroupMuted() {
         try {
-            Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", "dumpsys audio | grep -A 4 'VOLUME GROUP AUDIO_STREAM_ENFORCED_AUDIBLE'"});
+            Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", "dumpsys audio | grep -A 2 'VOLUME GROUP AUDIO_STREAM_ENFORCED_AUDIBLE'"});
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.contains("Muted: true") || line.contains("speaker): 0")) {
+                if (line.contains("Muted: true")) {
                     p.waitFor();
+                    isMuted = true;
                     return true;
+                }
+                if (line.contains("Muted: false")) {
+                    p.waitFor();
+                    isMuted = false;
+                    return false;
                 }
             }
             p.waitFor();
         } catch (Throwable ignored) {}
-        return false;
+        return isMuted;
     }
 }

@@ -22,9 +22,12 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     private Switch switchMain;
     private Switch switchBoot;
     private LinearLayout cardMainSwitch;
+    private LinearLayout rowBoot;
     private LinearLayout rowBattery;
     private TextView tvEngineInfo;
     private SharedPreferences prefs;
+    private volatile boolean isUpdatingUi = false;
+    private volatile boolean isUpdatingBootUi = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,7 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         switchMain = findViewById(R.id.switchMain);
         switchBoot = findViewById(R.id.switchBoot);
         cardMainSwitch = findViewById(R.id.cardMainSwitch);
+        rowBoot = findViewById(R.id.rowBoot);
         rowBattery = findViewById(R.id.rowBattery);
         tvEngineInfo = findViewById(R.id.tvEngineInfo);
 
@@ -41,13 +45,17 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
 
         // Auto boot switch setup
         boolean autoBootEnabled = prefs.getBoolean("auto_boot", false);
+        isUpdatingBootUi = true;
         switchBoot.setChecked(autoBootEnabled);
+        isUpdatingBootUi = false;
 
-        switchBoot.setOnClickListener(v -> {
-            boolean wantEnabled = switchBoot.isChecked();
-            if (wantEnabled) {
+        switchBoot.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingBootUi) return;
+            if (isChecked) {
                 if (!isIgnoringBatteryOptimizations()) {
+                    isUpdatingBootUi = true;
                     switchBoot.setChecked(false);
+                    isUpdatingBootUi = false;
                     showBatteryOptimizationDialog();
                 } else {
                     prefs.edit().putBoolean("auto_boot", true).apply();
@@ -57,11 +65,19 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             }
         });
 
-        // ONLY cardMainSwitch handles the click to prevent double-firing events
+        if (rowBoot != null) {
+            rowBoot.setOnClickListener(v -> switchBoot.toggle());
+        }
+
+        // Main Switch handling: clicking card or switch cleanly toggles without race condition
+        switchMain.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isUpdatingUi) return;
+            handleToggle(isChecked);
+        });
+
         cardMainSwitch.setOnClickListener(v -> {
-            boolean targetMuteState = !switchMain.isChecked();
-            switchMain.setChecked(targetMuteState);
-            handleToggle(targetMuteState);
+            if (isUpdatingUi) return;
+            switchMain.toggle();
         });
 
         rowBattery.setOnClickListener(v -> openBatterySettings());
@@ -118,7 +134,9 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             boolean localOk = MuteController.isLocalServerRunning();
 
             runOnUiThread(() -> {
+                isUpdatingUi = true;
                 switchMain.setChecked(isMuted);
+                isUpdatingUi = false;
 
                 if (localOk) {
                     tvEngineInfo.setText("Engine: Active • Hardware SKU: Japan");
@@ -135,18 +153,23 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
 
     private void handleToggle(boolean mute) {
         cardMainSwitch.setEnabled(false);
+        switchMain.setEnabled(false);
         new Thread(() -> {
             boolean ok = MuteController.setMute(this, mute);
             runOnUiThread(() -> {
                 cardMainSwitch.setEnabled(true);
+                switchMain.setEnabled(true);
                 if (ok) {
+                    isUpdatingUi = true;
                     switchMain.setChecked(mute);
+                    isUpdatingUi = false;
                     Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
                 } else {
+                    isUpdatingUi = true;
                     switchMain.setChecked(!mute);
+                    isUpdatingUi = false;
                     Toast.makeText(this, "Failed to toggle sound", Toast.LENGTH_SHORT).show();
                 }
-                updateUI();
             });
         }).start();
     }

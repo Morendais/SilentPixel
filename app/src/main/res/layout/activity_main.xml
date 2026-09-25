@@ -76,8 +76,6 @@
                 android:id="@+id/switchMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
                 android:thumbTint="@color/md3_switch_thumb_checked"
                 android:trackTint="@color/md3_switch_track_checked" />
 
@@ -106,6 +104,7 @@
 
             <!-- Item 1: Auto Silence on Restart -->
             <LinearLayout
+                android:id="@+id/rowBoot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"

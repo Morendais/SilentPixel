@@ -37,6 +37,7 @@ echo [*] Muting Volume Group 7 (AUDIO_STREAM_ENFORCED_AUDIBLE)...
 %ADB_CMD% shell "cmd audio adj-group-volume 7 MUTE"
 
 echo [*] Starting embedded standalone engine for Pixel Shutter app...
+%ADB_CMD% shell "pkill -f LocalServer 2>/dev/null"
 for /f "tokens=2 delims=:" %%i in ('%ADB_CMD% shell pm path com.antigravity.silentpixel 2^>nul') do (
     %ADB_CMD% shell "nohup app_process -Djava.class.path=%%i /system/bin com.antigravity.silentpixel.LocalServer >/dev/null 2>&1 &"
 )
