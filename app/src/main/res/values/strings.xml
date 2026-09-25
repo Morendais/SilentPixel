@@ -1,13 +1,22 @@
 <resources>
-    <string name="app_name">SilentPixel</string>
-    <string name="tile_name">Звук камеры</string>
-    <string name="title">Pixel Shutter Mute</string>
-    <string name="subtitle">Бесшумная камера для японских Pixel</string>
-    <string name="status_muted">🟢 Затвор ЗАГЛУШЕН (Тишина)</string>
-    <string name="status_unmuted">🔴 Затвор ВКЛЮЧЕН (Звук)</string>
-    <string name="status_unknown">⚪ Статус неизвестен</string>
-    <string name="btn_mute">🔇 Заглушить затвор</string>
-    <string name="btn_unmute">🔊 Вернуть звук</string>
-    <string name="switch_boot">Авто-заглушение при перезагрузке</string>
-    <string name="shizuku_not_ready">Shizuku не запущен. Запустите Shizuku через Беспроводную отладку.</string>
+    <string name="app_name">Pixel Shutter</string>
+    <string name="tile_name">Shutter Sound</string>
+    <string name="main_title">Camera Shutter</string>
+    <string name="main_subtitle">Mute the mandatory camera shutter sound on Japanese Google Pixel models.</string>
+    
+    <string name="switch_mute_title">Silent Shutter</string>
+    <string name="switch_mute_desc">Silences the camera click without pausing background music, videos, or calls.</string>
+    
+    <string name="section_preferences">SETTINGS</string>
+    
+    <string name="pref_boot_title">Auto-silence on restart</string>
+    <string name="pref_boot_desc">Automatically silences the shutter after the phone reboots.</string>
+    
+    <string name="pref_battery_title">Unrestricted background</string>
+    <string name="pref_battery_desc">Prevents Android from putting the auto-silence service to sleep.</string>
+    
+    <string name="pref_tile_title">Quick Settings Tile</string>
+    <string name="pref_tile_desc">Add a toggle tile to your notification panel.</string>
+
+    <string name="status_sku">Region: Japan (GYPW4) • Audio Group 7</string>
 </resources>

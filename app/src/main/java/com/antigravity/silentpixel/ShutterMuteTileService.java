@@ -15,13 +15,13 @@ public class ShutterMuteTileService extends TileService {
         Tile tile = getQsTile();
         if (tile == null) return;
 
-        String st = MuteController.getStatusString();
-        if ("MUTED".equals(st)) {
+        boolean isMuted = MuteController.isCameraMuted(this);
+        if (isMuted) {
             tile.setState(Tile.STATE_ACTIVE);
-            tile.setLabel("Затвор: Выкл");
+            tile.setLabel("Shutter: Muted");
         } else {
             tile.setState(Tile.STATE_INACTIVE);
-            tile.setLabel("Затвор: Вкл");
+            tile.setLabel("Shutter: Loud");
         }
         tile.updateTile();
     }
@@ -32,11 +32,8 @@ public class ShutterMuteTileService extends TileService {
         Tile tile = getQsTile();
         if (tile == null) return;
 
-        if (tile.getState() == Tile.STATE_ACTIVE) {
-            MuteController.unmuteShutter();
-        } else {
-            MuteController.muteShutter();
-        }
+        boolean currentlyMuted = (tile.getState() == Tile.STATE_ACTIVE);
+        MuteController.setMute(!currentlyMuted);
         updateTile();
     }
 }

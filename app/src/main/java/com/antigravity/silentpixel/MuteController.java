@@ -2,11 +2,12 @@ package com.antigravity.silentpixel;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import android.media.AudioManager;
 import rikka.shizuku.Shizuku;
 
 public class MuteController {
+
+    public static final int STREAM_SYSTEM_ENFORCED = 7;
 
     public static boolean isShizukuAvailable() {
         try {
@@ -35,13 +36,24 @@ public class MuteController {
         }
     }
 
+    public static boolean isCameraMuted(Context context) {
+        try {
+            AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) {
+                int vol = am.getStreamVolume(STREAM_SYSTEM_ENFORCED);
+                return vol == 0;
+            }
+        } catch (Throwable ignored) {}
+        return false;
+    }
+
     public static boolean runCommand(String cmd) {
         if (hasShizukuPermission()) {
             try {
                 String[] parts = cmd.split(" ");
                 java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
                 m.setAccessible(true);
-                Process p = (Process) m.invoke(null, parts, null, null);
+                Process p = (Process) m.invoke(null, new Object[]{parts, null, null});
                 return p.waitFor() == 0;
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -60,34 +72,15 @@ public class MuteController {
         return false;
     }
 
-    public static boolean muteShutter() {
-        boolean ok1 = runCommand("cmd audio set-group-volume 7 0");
-        boolean ok2 = runCommand("cmd audio adj-group-volume 7 MUTE");
-        return ok1 || ok2;
-    }
-
-    public static boolean unmuteShutter() {
-        boolean ok1 = runCommand("cmd audio set-group-volume 7 7");
-        boolean ok2 = runCommand("cmd audio adj-group-volume 7 UNMUTE");
-        return ok1 || ok2;
-    }
-
-    public static String getStatusString() {
-        if (hasShizukuPermission()) {
-            try {
-                java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
-                m.setAccessible(true);
-                Process p = (Process) m.invoke(null, new Object[]{new String[]{"cmd", "audio", "get-stream-volume", "7"}, null, null});
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = reader.readLine();
-                p.waitFor();
-                if (line != null && line.contains("-> 0")) {
-                    return "MUTED";
-                } else if (line != null && line.contains("-> 7")) {
-                    return "UNMUTED";
-                }
-            } catch (Throwable ignored) {}
+    public static boolean setMute(boolean mute) {
+        if (mute) {
+            boolean ok1 = runCommand("cmd audio set-group-volume 7 0");
+            boolean ok2 = runCommand("cmd audio adj-group-volume 7 MUTE");
+            return ok1 || ok2;
+        } else {
+            boolean ok1 = runCommand("cmd audio set-group-volume 7 7");
+            boolean ok2 = runCommand("cmd audio adj-group-volume 7 UNMUTE");
+            return ok1 || ok2;
         }
-        return "UNKNOWN";
     }
 }

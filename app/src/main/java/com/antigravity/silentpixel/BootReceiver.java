@@ -17,12 +17,11 @@ public class BootReceiver extends BroadcastReceiver {
 
             if (autoBoot) {
                 new Thread(() -> {
-                    // Give Shizuku service a few seconds to initialize
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException ignored) {}
 
-                    MuteController.muteShutter();
+                    MuteController.setMute(true);
                 }).start();
             }
         }
