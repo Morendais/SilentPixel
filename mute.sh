@@ -22,6 +22,8 @@ echo "[*] Muting Volume Group 7 (AUDIO_STREAM_ENFORCED_AUDIBLE)..."
 
 adb shell "cmd audio set-group-volume 7 0"
 adb shell "cmd audio adj-group-volume 7 MUTE"
+adb shell "cmd audio set-group-volume 2 0"
+adb shell "cmd audio adj-group-volume 2 MUTE"
 
 echo ""
 echo "[*] Verifying status..."

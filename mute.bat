@@ -35,6 +35,8 @@ echo [*] Muting Volume Group 7 (AUDIO_STREAM_ENFORCED_AUDIBLE)...
 
 %ADB_CMD% shell "cmd audio set-group-volume 7 0"
 %ADB_CMD% shell "cmd audio adj-group-volume 7 MUTE"
+%ADB_CMD% shell "cmd audio set-group-volume 2 0"
+%ADB_CMD% shell "cmd audio adj-group-volume 2 MUTE"
 
 echo [*] Starting embedded standalone engine for Pixel Shutter app...
 %ADB_CMD% shell "pkill -f LocalServer 2>/dev/null"

@@ -105,12 +105,14 @@ public class MuteController {
             try {
                 String cmd1 = mute ? "cmd audio set-group-volume 7 0" : "cmd audio set-group-volume 7 7";
                 String cmd2 = mute ? "cmd audio adj-group-volume 7 MUTE" : "cmd audio adj-group-volume 7 UNMUTE";
+                String cmd3 = mute ? "cmd audio set-group-volume 2 0" : "cmd audio set-group-volume 2 7";
+                String cmd4 = mute ? "cmd audio adj-group-volume 2 MUTE" : "cmd audio adj-group-volume 2 UNMUTE";
                 java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
                 m.setAccessible(true);
-                Process p1 = (Process) m.invoke(null, new Object[]{cmd1.split(" "), null, null});
-                p1.waitFor();
-                Process p2 = (Process) m.invoke(null, new Object[]{cmd2.split(" "), null, null});
-                p2.waitFor();
+                ((Process) m.invoke(null, new Object[]{cmd1.split(" "), null, null})).waitFor();
+                ((Process) m.invoke(null, new Object[]{cmd2.split(" "), null, null})).waitFor();
+                ((Process) m.invoke(null, new Object[]{cmd3.split(" "), null, null})).waitFor();
+                ((Process) m.invoke(null, new Object[]{cmd4.split(" "), null, null})).waitFor();
                 success = true;
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -120,8 +122,8 @@ public class MuteController {
         // 3. Try Root
         if (!success && isRootAvailable()) {
             try {
-                String cmd = mute ? "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE"
-                                  : "cmd audio set-group-volume 7 7 && cmd audio adj-group-volume 7 UNMUTE";
+                String cmd = mute ? "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE && cmd audio set-group-volume 2 0 && cmd audio adj-group-volume 2 MUTE"
+                                  : "cmd audio set-group-volume 7 7 && cmd audio adj-group-volume 7 UNMUTE && cmd audio set-group-volume 2 7 && cmd audio adj-group-volume 2 UNMUTE";
                 Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
                 success = (p.waitFor() == 0);
             } catch (Throwable t) {

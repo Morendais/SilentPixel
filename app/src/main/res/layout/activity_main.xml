@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="36dp"
+        android:paddingTop="72dp"
         android:paddingBottom="24dp">
 
         <!-- Pixel Header -->

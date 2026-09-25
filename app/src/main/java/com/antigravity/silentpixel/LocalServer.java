@@ -27,11 +27,15 @@ public class LocalServer {
                     if ("MUTE".equals(cmd)) {
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "0"}).waitFor();
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "MUTE"}).waitFor();
+                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "2", "0"}).waitFor();
+                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "2", "MUTE"}).waitFor();
                         isMuted = true;
                         out.println("OK");
                     } else if ("UNMUTE".equals(cmd)) {
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "7"}).waitFor();
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "UNMUTE"}).waitFor();
+                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "2", "7"}).waitFor();
+                        Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "2", "UNMUTE"}).waitFor();
                         isMuted = false;
                         out.println("OK");
                     } else if ("STATUS".equals(cmd)) {
