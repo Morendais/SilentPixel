@@ -75,39 +75,59 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         boolean isMuted = MuteController.isCameraMuted(this);
         switchMain.setChecked(isMuted);
 
-        if (MuteController.hasShizukuPermission()) {
-            tvEngineInfo.setText("Engine: Shizuku (Active) • SKU: Japan (GYPW4)");
-        } else if (MuteController.isRootAvailable()) {
-            tvEngineInfo.setText("Engine: Root (Active) • SKU: Japan (GYPW4)");
-        } else {
-            tvEngineInfo.setText("Status: Ready • SKU: Japan (GYPW4)");
-        }
+        new Thread(() -> {
+            boolean localOk = MuteController.isLocalServerRunning();
+            runOnUiThread(() -> {
+                if (localOk) {
+                    tvEngineInfo.setText("Engine: Standalone (Active) • SKU: Japan");
+                } else if (MuteController.hasShizukuPermission()) {
+                    tvEngineInfo.setText("Engine: Shizuku (Active) • SKU: Japan");
+                } else if (MuteController.isRootAvailable()) {
+                    tvEngineInfo.setText("Engine: Root (Active) • SKU: Japan");
+                } else {
+                    tvEngineInfo.setText("Engine: Standalone (Tap switch to activate)");
+                }
+            });
+        }).start();
     }
 
     private void handleToggle(boolean mute) {
-        if (MuteController.isShizukuAvailable() && !MuteController.hasShizukuPermission()) {
-            Shizuku.requestPermission(SHIZUKU_CODE);
-            switchMain.setChecked(!mute);
-            return;
-        }
-
-        if (!MuteController.hasShizukuPermission() && !MuteController.isRootAvailable()) {
-            showSetupDialog();
-            switchMain.setChecked(!mute);
-            return;
-        }
-
         new Thread(() -> {
-            boolean ok = MuteController.setMute(mute);
-            runOnUiThread(() -> {
-                if (ok) {
-                    Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Failed to apply audio setting", Toast.LENGTH_SHORT).show();
-                }
-                updateUI();
-            });
+            if (MuteController.isLocalServerRunning()) {
+                executeAction(mute);
+                return;
+            }
+
+            if (MuteController.isShizukuAvailable() && !MuteController.hasShizukuPermission()) {
+                runOnUiThread(() -> {
+                    Shizuku.requestPermission(SHIZUKU_CODE);
+                    switchMain.setChecked(!mute);
+                });
+                return;
+            }
+
+            if (!MuteController.hasShizukuPermission() && !MuteController.isRootAvailable()) {
+                runOnUiThread(() -> {
+                    showSetupDialog();
+                    switchMain.setChecked(!mute);
+                });
+                return;
+            }
+
+            executeAction(mute);
         }).start();
+    }
+
+    private void executeAction(boolean mute) {
+        boolean ok = MuteController.setMute(mute);
+        runOnUiThread(() -> {
+            if (ok) {
+                Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to apply audio setting", Toast.LENGTH_SHORT).show();
+            }
+            updateUI();
+        });
     }
 
     private void openBatterySettings() {

@@ -3,11 +3,42 @@ package com.antigravity.silentpixel;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import rikka.shizuku.Shizuku;
 
 public class MuteController {
 
     public static final int STREAM_SYSTEM_ENFORCED = 7;
+
+    public static boolean isLocalServerRunning() {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("127.0.0.1", LocalServer.PORT), 500);
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            out.println("PING");
+            String resp = in.readLine();
+            return "PONG".equals(resp);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
+    public static boolean sendLocalServerCommand(String cmd) {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("127.0.0.1", LocalServer.PORT), 1000);
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            out.println(cmd);
+            String resp = in.readLine();
+            return "OK".equals(resp);
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
     public static boolean isShizukuAvailable() {
         try {
@@ -47,21 +78,34 @@ public class MuteController {
         return false;
     }
 
-    public static boolean runCommand(String cmd) {
+    public static boolean setMute(boolean mute) {
+        // 1. Try embedded LocalServer first (zero external dependencies)
+        if (isLocalServerRunning()) {
+            return sendLocalServerCommand(mute ? "MUTE" : "UNMUTE");
+        }
+
+        // 2. Try Shizuku if available
         if (hasShizukuPermission()) {
             try {
-                String[] parts = cmd.split(" ");
+                String cmd1 = mute ? "cmd audio set-group-volume 7 0" : "cmd audio set-group-volume 7 7";
+                String cmd2 = mute ? "cmd audio adj-group-volume 7 MUTE" : "cmd audio adj-group-volume 7 UNMUTE";
                 java.lang.reflect.Method m = Shizuku.class.getDeclaredMethod("newProcess", String[].class, String[].class, String.class);
                 m.setAccessible(true);
-                Process p = (Process) m.invoke(null, new Object[]{parts, null, null});
-                return p.waitFor() == 0;
+                Process p1 = (Process) m.invoke(null, new Object[]{cmd1.split(" "), null, null});
+                p1.waitFor();
+                Process p2 = (Process) m.invoke(null, new Object[]{cmd2.split(" "), null, null});
+                p2.waitFor();
+                return true;
             } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
 
+        // 3. Try Root
         if (isRootAvailable()) {
             try {
+                String cmd = mute ? "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE"
+                                  : "cmd audio set-group-volume 7 7 && cmd audio adj-group-volume 7 UNMUTE";
                 Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
                 return p.waitFor() == 0;
             } catch (Throwable t) {
@@ -70,17 +114,5 @@ public class MuteController {
         }
 
         return false;
-    }
-
-    public static boolean setMute(boolean mute) {
-        if (mute) {
-            boolean ok1 = runCommand("cmd audio set-group-volume 7 0");
-            boolean ok2 = runCommand("cmd audio adj-group-volume 7 MUTE");
-            return ok1 || ok2;
-        } else {
-            boolean ok1 = runCommand("cmd audio set-group-volume 7 7");
-            boolean ok2 = runCommand("cmd audio adj-group-volume 7 UNMUTE");
-            return ok1 || ok2;
-        }
     }
 }
