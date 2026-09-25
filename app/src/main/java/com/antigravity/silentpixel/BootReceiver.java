@@ -13,7 +13,7 @@ public class BootReceiver extends BroadcastReceiver {
             "android.intent.action.LOCKED_BOOT_COMPLETED".equals(intent.getAction())) {
 
             SharedPreferences prefs = context.getSharedPreferences("silent_pixel_prefs", Context.MODE_PRIVATE);
-            boolean autoBoot = prefs.getBoolean("auto_boot", true);
+            boolean autoBoot = prefs.getBoolean("auto_boot", false);
 
             if (autoBoot) {
                 new Thread(() -> {
@@ -21,7 +21,7 @@ public class BootReceiver extends BroadcastReceiver {
                         Thread.sleep(2000);
                     } catch (InterruptedException ignored) {}
 
-                    MuteController.setMute(true);
+                    MuteController.setMute(context, true);
                 }).start();
             }
         }

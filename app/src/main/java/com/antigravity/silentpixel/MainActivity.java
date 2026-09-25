@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,8 +38,8 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
         tvEngineInfo = findViewById(R.id.tvEngineInfo);
 
         prefs = getSharedPreferences("silent_pixel_prefs", MODE_PRIVATE);
-        
-        // Default auto_boot is false as requested
+
+        // Auto boot switch setup
         boolean autoBootEnabled = prefs.getBoolean("auto_boot", false);
         switchBoot.setChecked(autoBootEnabled);
 
@@ -58,18 +57,19 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
             }
         });
 
+        // Toggle handling on either card click or switch click
         cardMainSwitch.setOnClickListener(v -> {
-            switchMain.toggle();
-            handleToggle(switchMain.isChecked());
+            boolean newState = !switchMain.isChecked();
+            switchMain.setChecked(newState);
+            handleToggle(newState);
         });
 
         switchMain.setOnClickListener(v -> {
-            handleToggle(switchMain.isChecked());
+            boolean newState = switchMain.isChecked();
+            handleToggle(newState);
         });
 
-        rowBattery.setOnClickListener(v -> {
-            openBatterySettings();
-        });
+        rowBattery.setOnClickListener(v -> openBatterySettings());
 
         Shizuku.addRequestPermissionResultListener(this);
     }
@@ -78,8 +78,7 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     protected void onResume() {
         super.onResume();
         updateUI();
-        
-        // If user just returned from battery settings and battery is now unrestricted:
+
         if (prefs.getBoolean("pending_boot_enable", false)) {
             if (isIgnoringBatteryOptimizations()) {
                 switchBoot.setChecked(true);
@@ -119,12 +118,13 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
     }
 
     private void updateUI() {
-        boolean isMuted = MuteController.isCameraMuted(this);
-        switchMain.setChecked(isMuted);
-
         new Thread(() -> {
+            boolean isMuted = MuteController.isCameraMuted(this);
             boolean localOk = MuteController.isLocalServerRunning();
+
             runOnUiThread(() -> {
+                switchMain.setChecked(isMuted);
+
                 if (localOk) {
                     tvEngineInfo.setText("Engine: Active • Hardware SKU: Japan");
                 } else if (MuteController.hasShizukuPermission()) {
@@ -132,7 +132,7 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
                 } else if (MuteController.isRootAvailable()) {
                     tvEngineInfo.setText("Engine: Root • Hardware SKU: Japan");
                 } else {
-                    tvEngineInfo.setText("Engine: Ready • Hardware SKU: Japan");
+                    tvEngineInfo.setText("Engine: Standalone • Hardware SKU: Japan");
                 }
             });
         }).start();
@@ -140,12 +140,14 @@ public class MainActivity extends Activity implements Shizuku.OnRequestPermissio
 
     private void handleToggle(boolean mute) {
         new Thread(() -> {
-            boolean ok = MuteController.setMute(mute);
+            boolean ok = MuteController.setMute(this, mute);
             runOnUiThread(() -> {
                 if (ok) {
+                    switchMain.setChecked(mute);
                     Toast.makeText(this, mute ? "Shutter silenced" : "Shutter sound restored", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "Could not adjust audio. Please ensure service is active.", Toast.LENGTH_SHORT).show();
+                    switchMain.setChecked(!mute);
+                    Toast.makeText(this, "Failed to toggle sound", Toast.LENGTH_SHORT).show();
                 }
                 updateUI();
             });

@@ -30,6 +30,9 @@ public class LocalServer {
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "set-group-volume", "7", "7"}).waitFor();
                         Runtime.getRuntime().exec(new String[]{"cmd", "audio", "adj-group-volume", "7", "UNMUTE"}).waitFor();
                         out.println("OK");
+                    } else if ("STATUS".equals(cmd)) {
+                        boolean muted = checkAudioGroupMuted();
+                        out.println(muted ? "MUTED" : "UNMUTED");
                     } else if ("PING".equals(cmd)) {
                         out.println("PONG");
                     } else {
@@ -42,5 +45,21 @@ public class LocalServer {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    private static boolean checkAudioGroupMuted() {
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", "dumpsys audio | grep -A 4 'VOLUME GROUP AUDIO_STREAM_ENFORCED_AUDIBLE'"});
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("Muted: true") || line.contains("speaker): 0")) {
+                    p.waitFor();
+                    return true;
+                }
+            }
+            p.waitFor();
+        } catch (Throwable ignored) {}
+        return false;
     }
 }

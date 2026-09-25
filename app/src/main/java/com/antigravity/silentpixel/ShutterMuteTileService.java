@@ -33,7 +33,7 @@ public class ShutterMuteTileService extends TileService {
         if (tile == null) return;
 
         boolean currentlyMuted = (tile.getState() == Tile.STATE_ACTIVE);
-        MuteController.setMute(!currentlyMuted);
+        MuteController.setMute(this, !currentlyMuted);
         updateTile();
     }
 }

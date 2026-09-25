@@ -1,8 +1,8 @@
 package com.antigravity.silentpixel;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -29,14 +29,26 @@ public class MuteController {
 
     public static boolean sendLocalServerCommand(String cmd) {
         try (Socket s = new Socket()) {
-            s.connect(new InetSocketAddress("127.0.0.1", LocalServer.PORT), 1000);
+            s.connect(new InetSocketAddress("127.0.0.1", LocalServer.PORT), 1500);
             PrintWriter out = new PrintWriter(s.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             out.println(cmd);
             String resp = in.readLine();
-            return "OK".equals(resp);
+            return "OK".equals(resp) || "MUTED".equals(resp) || "UNMUTED".equals(resp);
         } catch (Throwable t) {
             return false;
+        }
+    }
+
+    public static String getLocalServerStatus() {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("127.0.0.1", LocalServer.PORT), 1500);
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            out.println("STATUS");
+            return in.readLine();
+        } catch (Throwable t) {
+            return null;
         }
     }
 
@@ -68,24 +80,28 @@ public class MuteController {
     }
 
     public static boolean isCameraMuted(Context context) {
-        try {
-            AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            if (am != null) {
-                int vol = am.getStreamVolume(STREAM_SYSTEM_ENFORCED);
-                return vol == 0;
-            }
-        } catch (Throwable ignored) {}
-        return false;
+        // 1. Check directly via LocalServer if running
+        if (isLocalServerRunning()) {
+            String status = getLocalServerStatus();
+            if ("MUTED".equals(status)) return true;
+            if ("UNMUTED".equals(status)) return false;
+        }
+
+        // 2. Fallback to cached preference
+        SharedPreferences prefs = context.getSharedPreferences("silent_pixel_prefs", Context.MODE_PRIVATE);
+        return prefs.getBoolean("is_muted", false);
     }
 
-    public static boolean setMute(boolean mute) {
-        // 1. Try embedded LocalServer first (zero external dependencies)
+    public static boolean setMute(Context context, boolean mute) {
+        boolean success = false;
+
+        // 1. Try embedded LocalServer first
         if (isLocalServerRunning()) {
-            return sendLocalServerCommand(mute ? "MUTE" : "UNMUTE");
+            success = sendLocalServerCommand(mute ? "MUTE" : "UNMUTE");
         }
 
         // 2. Try Shizuku if available
-        if (hasShizukuPermission()) {
+        if (!success && hasShizukuPermission()) {
             try {
                 String cmd1 = mute ? "cmd audio set-group-volume 7 0" : "cmd audio set-group-volume 7 7";
                 String cmd2 = mute ? "cmd audio adj-group-volume 7 MUTE" : "cmd audio adj-group-volume 7 UNMUTE";
@@ -95,24 +111,29 @@ public class MuteController {
                 p1.waitFor();
                 Process p2 = (Process) m.invoke(null, new Object[]{cmd2.split(" "), null, null});
                 p2.waitFor();
-                return true;
+                success = true;
             } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
 
         // 3. Try Root
-        if (isRootAvailable()) {
+        if (!success && isRootAvailable()) {
             try {
                 String cmd = mute ? "cmd audio set-group-volume 7 0 && cmd audio adj-group-volume 7 MUTE"
                                   : "cmd audio set-group-volume 7 7 && cmd audio adj-group-volume 7 UNMUTE";
                 Process p = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
-                return p.waitFor() == 0;
+                success = (p.waitFor() == 0);
             } catch (Throwable t) {
                 t.printStackTrace();
             }
         }
 
-        return false;
+        if (success) {
+            context.getSharedPreferences("silent_pixel_prefs", Context.MODE_PRIVATE)
+                    .edit().putBoolean("is_muted", mute).apply();
+        }
+
+        return success;
     }
 }
