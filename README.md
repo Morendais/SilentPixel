@@ -63,15 +63,13 @@ If you have a computer, this takes **literally 5 seconds** and requires no extra
 
 If you prefer an on-device toggle without needing a computer:
 
-1. Download and install **`SilentPixel.apk`** from [Releases](https://github.com/Morendais/SilentPixel/releases).
-2. Install **Shizuku** from Google Play:  
-   https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api
-3. Open Shizuku and start it via **Wireless Debugging**:
+1. Download **`SilentPixel.apk`** and **`shizuku-v13.6.0.apk`** from [Releases](https://github.com/Morendais/SilentPixel/releases) (or install Shizuku from [Google Play](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api)).
+2. Open Shizuku and start it via **Wireless Debugging**:
    * Tap *"Start via Wireless debugging"*.
    * Developer Options → Wireless Debugging → *"Pair device with pairing code"*.
    * Enter the 6-digit pairing code in the Shizuku prompt.
-4. Open **SilentPixel** and tap **"Silence Shutter"**.
-5. **Done!** Camera shutter sound is now completely muted on your stock camera.
+3. Open **SilentPixel** and tap **"Silence Shutter"**.
+4. **Done!** Camera shutter sound is now completely muted on your stock camera.
 
 ---
 
