@@ -15,9 +15,13 @@ The existing workarounds didn't work for me:
 
 I found out that on modern Android, the enforced shutter sound is routed through **Volume Group 7**, which can be muted directly via ADB. Muting it completely silences the camera click, while background music, videos, calls, and notifications keep playing without any interruption.
 
+Because Android resets volume groups on reboot, this works until you restart your phone. After a reboot, you can easily re-apply it in seconds either via the .bat script over USB or directly on your phone using the app with Shizuku.
+
 I put together an open-source project called **SilentPixel**:
-- **`mute.bat` (Windows):** Plug phone into PC, double-click the script, done in 5 seconds. It stays muted until you reboot the phone.
-- **Android companion app:** A simple app that works together with Shizuku if you prefer muting directly on your phone without a PC.
+- **`mute.bat` (Windows):** Plug phone into PC, double-click the script, done in 5 seconds.
+- **Android companion app:** A simple app that works together with Shizuku if you prefer re-applying the mute directly on your phone without a PC.
+
+Tested on Pixel 10 Pro XL.
 
 GitHub repo: https://github.com/Morendais/SilentPixel
 
