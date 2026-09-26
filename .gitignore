@@ -1,3 +1,10 @@
 app/build/
 *.idsig
 .gradle/
+*.log
+.idea/
+*.iml
+local.properties
+Captures/
+.DS_Store
+Thumbs.db

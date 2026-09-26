@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $BUILD_TOOLS = "$env:LOCALAPPDATA\Android\Sdk\build-tools\36.1.0"
 $ANDROID_JAR = "$env:LOCALAPPDATA\Android\Sdk\platforms\android-36.1\android.jar"
-$APP_DIR = "C:\Users\UserHome\.gemini\antigravity\scratch\pixel-japanese-camera-mute\app"
+$APP_DIR = "$PSScriptRoot\app"
 $OUT_DIR = "$APP_DIR\build"
 
 Write-Host "[*] Cleaning build dir..."
