@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title Pixel Shutter Tool
+title Pixel Camera Shutter Mute
 
 echo ========================================================
 echo   Pixel Camera Shutter Mute (No Root / No SIM)
@@ -16,6 +16,7 @@ if %ERRORLEVEL% equ 0 (
         set ADB_CMD="%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe"
     ) else (
         echo [!] ADB not found in PATH or Android SDK.
+        echo Please install platform-tools or add adb to your PATH.
         pause
         exit /b 1
     )
@@ -25,7 +26,7 @@ echo [*] Checking connected devices...
 %ADB_CMD% get-state >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo [!] No authorized device found!
-    echo Please make sure USB debugging is enabled.
+    echo Please connect your Pixel and enable USB Debugging in Developer Options.
     pause
     exit /b 1
 )
@@ -38,17 +39,12 @@ echo [*] Muting Volume Group 7 (AUDIO_STREAM_ENFORCED_AUDIBLE)...
 %ADB_CMD% shell "cmd audio set-group-volume 2 0"
 %ADB_CMD% shell "cmd audio adj-group-volume 2 MUTE"
 
-echo [*] Starting embedded standalone engine for Pixel Shutter app...
-%ADB_CMD% shell "pkill -f LocalServer 2>/dev/null"
-for /f "tokens=2 delims=:" %%i in ('%ADB_CMD% shell pm path com.antigravity.silentpixel 2^>nul') do (
-    %ADB_CMD% shell "nohup app_process -Djava.class.path=%%i /system/bin com.antigravity.silentpixel.LocalServer >/dev/null 2>&1 &"
-)
-
 echo.
 echo ========================================================
-echo [+] SUCCESS! Camera shutter sound has been muted.
-echo [*] SilentPixel app standalone engine is now ACTIVE.
-echo [*] You can now toggle shutter sound directly inside the app!
+echo [+] SUCCESS! Japanese camera shutter sound has been muted.
+echo [*] Music, videos, ringtones, and notifications are unaffected!
+echo [*] Note: Android resets this setting when the phone reboots.
+echo     Simply re-run this .bat file whenever you restart your device.
 echo ========================================================
 echo.
 pause

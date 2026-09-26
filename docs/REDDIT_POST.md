@@ -1,47 +1,27 @@
 # Reddit Post Draft for r/GooglePixel
 
 **Title:**
-> Muting the Japanese Pixel camera shutter sound on official Stock Google Camera (No Root, No SIM tricks, No interrupted Spotify/Music)
+> Found a clean way to mute the Japanese Pixel camera shutter sound (Stock Camera, No Root, Music doesn't cut out)
 
 **Body:**
 
 Hey r/GooglePixel,
 
-Like many people here, I bought a Japanese Google Pixel (SKU AJP / GYPW4). It's an incredible phone, but that mandatory camera shutter sound at maximum volume drove me crazy — especially in quiet rooms, museums, or when trying to take candid photos of my pets or kids.
+Like many people here, I bought a Japanese Google Pixel. It's a great phone, but that mandatory maximum-volume camera shutter click was driving me crazy — especially in quiet rooms, museums, or when trying to take candid photos of pets.
 
-### Why existing solutions didn't work for me:
-1. **GCam Ports (AGC / BSG / BigKaka):** They do let you toggle shutter sound off, but I personally wanted to stay on **100% official stock Google Camera** with seamless lock-screen double-tap power button shortcuts, official Play Store updates, and zero third-party processing quirks.
-2. **Play Store "Mute Camera" apps:** They rely on Accessibility Services and aggressively hijack global `AUDIOFOCUS`. Every single time you open the camera, your Spotify, Apple Music, or YouTube abruptly cuts off or glitches. Plus, they introduce a 1–2 second launch delay and sometimes still leak a shutter click if music is streaming.
-3. **Foreign SIM roaming:** Android only disables the sound if you connect to a physical non-Japanese base station. If you're in airplane mode, on subway Wi-Fi, or have weak coverage, the shutter sound forcefully comes back.
+The existing workarounds were annoying:
+* **GCam mod ports:** I didn't want to lose the official Stock Google Camera with lockscreen double-tap shortcuts and regular Play Store updates.
+* **Play Store "Mute" apps:** They mute the camera by hijacking audio focus, which causes Spotify/music to abruptly cut out or glitch every single time you open the camera, plus there's an annoying startup delay.
 
----
+After digging into Android's audio system, I found that modern Android (Android 11–16) maps the enforced shutter sound to **Volume Group 7**, which can be muted directly via ADB without affecting anything else. Background music, videos, phone calls, and alarms keep playing 100% uninterrupted.
 
-### The Discovery: Android Audio Volume Group 7
-I started digging into AOSP's `AudioService` internals. On modern Android (11 through 16), stream volumes are mapped to **Audio Volume Groups**.
+I put together an open-source repo called **SilentPixel**:
 
-Google hardcoded `STREAM_SYSTEM_ENFORCED` (Stream 7) to block normal stream volume reduction on Japanese SKUs. **However**, the low-level Android audio command dispatcher (`cmd audio`) lets you address hardware volume groups directly:
+1. **Windows 1-click script (`mute.bat`):** Just connect your phone to your PC via USB and double-click `mute.bat`. Takes 5 seconds and stays muted until you reboot your phone.
+2. **Companion app:** A tiny Material 3 app for toggling the mute on-device using Shizuku.
 
-```bash
-cmd audio set-group-volume 7 0
-cmd audio adj-group-volume 7 MUTE
-cmd audio set-group-volume 2 0
-cmd audio adj-group-volume 2 MUTE
-```
+No root, no data wipe, no battery drain.
 
-By muting **Volume Group 7**, the camera shutter sound is **100% silenced**, while:
-* **Background music (Spotify, YouTube Music, Podcasts) plays completely uninterrupted!**
-* Phone calls, alarms, and timers work normally.
-* Official stock Google Camera opens with zero lag.
+**GitHub Repository:** https://github.com/Morendais/SilentPixel
 
----
-
-### The Tool: SilentPixel (Open Source)
-I packaged this into a tiny open-source tool called **SilentPixel**:
-* **1-Click PC script (`mute.bat` / `mute.sh`):** If you plug your phone into a PC occasionally, double-click `mute.bat` once and you're done until you reboot.
-* **SilentPixel App (~49 KB, Material 3):** If you prefer an on-device toggle, there's a minimal app with Shizuku support that can automatically re-apply the silence on restart.
-* **Termux one-liner:** If you're a power user with Rish or local ADB.
-
-**GitHub Repository:** [https://github.com/YOUR_USERNAME/SilentPixel](https://github.com/YOUR_USERNAME/SilentPixel)  
-*(Full source code, step-by-step instructions, and APK release available)*
-
-Hope this helps anyone else struggling with the Japanese shutter sound on their Pixels! Tested and verified on Pixel 10 Pro XL, Pixel 9, 8, and 7 series.
+Hope this helps anyone else dealing with Japanese Pixel shutter sounds!

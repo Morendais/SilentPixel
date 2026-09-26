@@ -12,14 +12,11 @@
     <string name="status_not_silenced">● Shutter Loud</string>
     <string name="status_needs_activation">● Setup Needed</string>
     
-    <string name="section_preferences">SETTINGS</string>
-    
-    <string name="pref_boot_title">Auto-silence on restart</string>
-    <string name="pref_boot_desc">Automatically re-applies silence after phone restarts.</string>
-    
-    <string name="pref_battery_title">Unrestricted background</string>
-    <string name="pref_battery_desc">Prevents Android from putting the silence service to sleep.</string>
+    <string name="section_preferences">SETTINGS &amp; INFO</string>
     
     <string name="pref_tile_title">Quick Settings Tile</string>
     <string name="pref_tile_desc">Add a one-tap silence tile to your quick settings panel.</string>
+
+    <string name="pref_github_title">GitHub Repository</string>
+    <string name="pref_github_desc">github.com/Morendais/SilentPixel</string>
 </resources>
