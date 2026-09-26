@@ -34,7 +34,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="28dp" />
 
-        <!-- Hero Action Card (Google Pixel Style) -->
+        <!-- Hero Action Card -->
         <LinearLayout
             android:id="@+id/cardMainAction"
             android:layout_width="match_parent"
@@ -114,71 +114,32 @@
             android:layout_marginStart="8dp"
             android:layout_marginBottom="10dp" />
 
-        <!-- Settings Group Card -->
+        <!-- Source / GitHub Card -->
         <LinearLayout
+            android:id="@+id/rowGithub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/bg_card_single"
             android:padding="18dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_marginBottom="24dp">
 
-            <!-- Item 1: Quick Settings Tile -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="@string/pref_github_title"
+                android:textSize="15sp"
+                android:textColor="@color/md3_text_title" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pref_tile_title"
-                    android:textSize="15sp"
-                    android:textColor="@color/md3_text_title" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pref_tile_desc"
-                    android:textSize="12sp"
-                    android:textColor="@color/md3_text_body"
-                    android:layout_marginTop="2dp" />
-
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/md3_divider"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="14dp" />
-
-            <!-- Item 2: GitHub Repository Link -->
-            <LinearLayout
-                android:id="@+id/rowGithub"
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pref_github_title"
-                    android:textSize="15sp"
-                    android:textColor="@color/md3_text_title" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/pref_github_desc"
-                    android:textSize="12sp"
-                    android:textColor="@color/md3_primary"
-                    android:layout_marginTop="2dp" />
-
-            </LinearLayout>
+                android:text="@string/pref_github_desc"
+                android:textSize="12sp"
+                android:textColor="@color/md3_primary"
+                android:layout_marginTop="3dp" />
 
         </LinearLayout>
 

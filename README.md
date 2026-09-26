@@ -99,7 +99,7 @@ If you prefer an on-device interface:
    * Developer Options → Wireless Debugging → *"Pair device with pairing code"*.
    * Enter the 6-digit pairing code in the Shizuku prompt.
 4. Open **SilentPixel** and tap **"Silence Shutter"**.
-5. **Done!** You can also add the one-tap tile to your Quick Settings panel.
+5. **Done!** Camera shutter sound is now completely muted on your stock camera.
 
 ---
 
